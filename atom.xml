@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Hexo</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2018-05-09T07:26:58.367Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>John Doe</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>The first blog</title>
+    <link href="http://yoursite.com/2018/05/09/The-first-blog/"/>
+    <id>http://yoursite.com/2018/05/09/The-first-blog/</id>
+    <published>2018-05-09T07:22:34.000Z</published>
+    <updated>2018-05-09T07:26:58.367Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://yoursite.com/categories/javascript/"/>
+    
+    
+      <category term="The first tag" scheme="http://yoursite.com/tags/The-first-tag/"/>
+    
+      <category term="新的开始" scheme="http://yoursite.com/tags/%E6%96%B0%E7%9A%84%E5%BC%80%E5%A7%8B/"/>
+    
+  </entry>
+  
+</feed>
