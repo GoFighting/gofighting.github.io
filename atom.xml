@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-05-09T11:16:10.233Z</updated>
+  <updated>2018-06-15T06:03:19.776Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,24 +17,28 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>The first blog</title>
-    <link href="http://yoursite.com/2018/05/09/The-first-blog/"/>
-    <id>http://yoursite.com/2018/05/09/The-first-blog/</id>
-    <published>2018-05-09T07:22:34.000Z</published>
-    <updated>2018-05-09T11:16:10.233Z</updated>
+    <title>webpack小技巧-公共组件引用路径简化</title>
+    <link href="http://yoursite.com/2018/06/15/webpack%E5%B0%8F%E6%8A%80%E5%B7%A7-%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E5%BC%95%E7%94%A8%E8%B7%AF%E5%BE%84%E7%AE%80%E5%8C%96/"/>
+    <id>http://yoursite.com/2018/06/15/webpack小技巧-公共组件引用路径简化/</id>
+    <published>2018-06-15T06:02:10.000Z</published>
+    <updated>2018-06-15T06:03:19.776Z</updated>
     
-    <content type="html"><![CDATA[<p>新的开始！</p>]]></content>
+    <content type="html"><![CDATA[<p>日常开发中，我们会常常把一些功能提取出来，包装成一个公共模块或者组件，供不同地方使用，但是随着项目不断变大，项目目录不断变深，我们引用公共组件的路径越来越长！</p><p>例如：引用一个公共模块<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Menu <span class="keyword">from</span> <span class="string">'../../../../../components/Menu'</span>; <span class="comment">// 这里路径太深，很容易写错</span></span><br></pre></td></tr></table></figure></p><p><strong>我们该怎么优化尼？</strong></p><h4 id="解决方案1：使用webpack的resolve-alias属性"><a href="#解决方案1：使用webpack的resolve-alias属性" class="headerlink" title="解决方案1：使用webpack的resolve.alias属性"></a>解决方案1：使用webpack的<a href="https://webpack.js.org/configuration/resolve/" target="_blank" rel="noopener">resolve.alias</a>属性</h4><p>先配置webpack<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    ...</span><br><span class="line">    resolve: &#123;</span><br><span class="line">        alias: &#123;</span><br><span class="line">            <span class="string">"@commModule"</span>: path.resolve(__dirname, <span class="string">"src/components/"</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p><p>引用Menu模块<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Menu <span class="keyword">from</span> <span class="string">'@commModule/Menu'</span>;</span><br></pre></td></tr></table></figure></p><h4 id="解决方案2：babel-plugin-module-resolver"><a href="#解决方案2：babel-plugin-module-resolver" class="headerlink" title="解决方案2：babel-plugin-module-resolver"></a>解决方案2：<a href="https://github.com/tleunen/babel-plugin-module-resolver" target="_blank" rel="noopener">babel-plugin-module-resolver</a></h4><p>配置.babelrc<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"plugins"</span>: [</span><br><span class="line">        [<span class="string">"module-resolver"</span>, &#123;</span><br><span class="line">            <span class="string">"alias"</span>: &#123;</span><br><span class="line">                <span class="string">"@commMdule"</span>: <span class="string">"./src/components"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;]</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><p>引用Menu模块<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Menu <span class="keyword">from</span> <span class="string">'@commModule/Menu'</span>;</span><br></pre></td></tr></table></figure></p><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>或许这只是一个小优化，但是在实际场景中，能够大大的降低我们的维护成本，提高我们的生产效率！</p>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;p&gt;新的开始！&lt;/p&gt;
-
+        &lt;p&gt;日常开发中，我们会常常把一些功能提取出来，包装成一个公共模块或者组件，供不同地方使用，但是随着项目不断变大，项目目录不断变深，我们引用公共组件的路径越来越长！&lt;/p&gt;
+&lt;p&gt;例如：引用一个公共模块&lt;br&gt;&lt;figure class=&quot;highlight javascript
       
     
     </summary>
     
+      <category term="webpack" scheme="http://yoursite.com/categories/webpack/"/>
+    
+    
+      <category term="webpack" scheme="http://yoursite.com/tags/webpack/"/>
     
   </entry>
   

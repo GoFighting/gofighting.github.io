@@ -15,7 +15,7 @@
     <meta name="description" content="">
     <meta name="Cache-Control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-    <title>about · Nine&#39;s Blog</title>
+    <title>webpack小技巧-公共组件引用路径简化 · Nine&#39;s Blog</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -70,6 +70,8 @@
 
     <link rel="preload" href= /css/style.css?v=20180501 as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <link rel="stylesheet" href= /css/mobile.css?v=20180501 media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
         
     <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 /* This file is meant as a standalone workflow for
@@ -191,12 +193,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Nine&#39;s Blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">webpack小技巧-公共组件引用路径简化</a>
+            </div>
+    </div>
     
     <a class="home-link" href=/>Nine's Blog</a>
 </header>
@@ -211,24 +224,67 @@
 
 
 
+height:50vh;
+
 >
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
+            
+            webpack小技巧-公共组件引用路径简化
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "webpack">webpack</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/06/15</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
         
     </div>
 </div>
@@ -334,7 +390,15 @@
         <div class="container container-unloaded">
             <main class="main post-page">
     <article class="article-entry">
-        
+        <p>日常开发中，我们会常常把一些功能提取出来，包装成一个公共模块或者组件，供不同地方使用，但是随着项目不断变大，项目目录不断变深，我们引用公共组件的路径越来越长！</p>
+<p>例如：引用一个公共模块<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Menu <span class="keyword">from</span> <span class="string">'../../../../../components/Menu'</span>; <span class="comment">// 这里路径太深，很容易写错</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>我们该怎么优化尼？</strong></p>
+<h4 id="解决方案1：使用webpack的resolve-alias属性"><a href="#解决方案1：使用webpack的resolve-alias属性" class="headerlink" title="解决方案1：使用webpack的resolve.alias属性"></a>解决方案1：使用webpack的<a href="https://webpack.js.org/configuration/resolve/" target="_blank" rel="noopener">resolve.alias</a>属性</h4><p>先配置webpack<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">    ...</span><br><span class="line">    resolve: &#123;</span><br><span class="line">        alias: &#123;</span><br><span class="line">            <span class="string">"@commModule"</span>: path.resolve(__dirname, <span class="string">"src/components/"</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>引用Menu模块<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Menu <span class="keyword">from</span> <span class="string">'@commModule/Menu'</span>;</span><br></pre></td></tr></table></figure></p>
+<h4 id="解决方案2：babel-plugin-module-resolver"><a href="#解决方案2：babel-plugin-module-resolver" class="headerlink" title="解决方案2：babel-plugin-module-resolver"></a>解决方案2：<a href="https://github.com/tleunen/babel-plugin-module-resolver" target="_blank" rel="noopener">babel-plugin-module-resolver</a></h4><p>配置.babelrc<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"plugins"</span>: [</span><br><span class="line">        [<span class="string">"module-resolver"</span>, &#123;</span><br><span class="line">            <span class="string">"alias"</span>: &#123;</span><br><span class="line">                <span class="string">"@commMdule"</span>: <span class="string">"./src/components"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;]</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>引用Menu模块<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Menu <span class="keyword">from</span> <span class="string">'@commModule/Menu'</span>;</span><br></pre></td></tr></table></figure></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>或许这只是一个小优化，但是在实际场景中，能够大大的降低我们的维护成本，提高我们的生产效率！</p>
+
     </article>
     <!-- license  -->
     
@@ -432,6 +496,24 @@
 
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方案1：使用webpack的resolve-alias属性"><span class="toc-number">1.</span> <span class="toc-text">解决方案1：使用webpack的resolve.alias属性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方案2：babel-plugin-module-resolver"><span class="toc-number">2.</span> <span class="toc-text">解决方案2：babel-plugin-module-resolver</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -541,6 +623,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
     
     </body>
 </html>

@@ -352,20 +352,28 @@ height:50vh;
     
     
         <article class="index-post">
-            <a class="abstract-title" href = "/2018/05/09/The-first-blog/" >
+            <a class="abstract-title" href = "/2018/06/15/webpack小技巧-公共组件引用路径简化/" >
                 
-                    <span>The first blog</span>
+                    <span>webpack小技巧-公共组件引用路径简化</span>
             </a>
             <div class="abstract-content">
-                新的开始！
-
+                日常开发中，我们会常常把一些功能提取出来，包装成一个公共模块或者组件，供不同地方使用，但是随着项目不断变大，项目目录不断变深，我们引用公共组件的路径越来越长！
+例如：引用一个公共模块1import Menu from '../../../../../components/Menu'; // 这里路径太深，很容易写错
+我们该怎么优化尼？
+解决方案1：使用webpack的resolve.alias属性先配置webpack123456789module.exports = &#123;    ...    resolve: &#123;        alias: &#123;        ...
             </div>
             <div class="abstract-post-meta">
                 <!-- date  -->
                 <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/05/09</span>
+                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/06/15</span>
                 </div>
                 <!-- tags  -->
+                
+                <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "webpack">webpack</a>
+    
+</div>
                 
             </div>
         </article>
@@ -502,6 +510,11 @@ height:50vh;
     
     <!-- 不蒜子  -->
     
+    <div class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>
+        </span>
+    </div>
+    
 </footer>
 
     </div>
@@ -540,13 +553,15 @@ height:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">05/09</span><a class="archive-post-title" href= "/2018/05/09/The-first-blog/" >The first blog</a>
+            <span class="archive-post-date">06/15</span><a class="archive-post-title" href= "/2018/06/15/webpack小技巧-公共组件引用路径简化/" >webpack小技巧-公共组件引用路径简化</a>
         </li>
     
     </div>
   </div>
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="webpack"><span class="iconfont-archer">&#xe606;</span>webpack</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
@@ -581,6 +596,8 @@ jsonContent:
         <div class="sidebar-panel-categories">
     <div class="sidebar-categories-name">
     
+        <span class="sidebar-category-name" data-categories="webpack"><span class="iconfont-archer">&#xe60a;</span>webpack</span>
+    
     </div>
     <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
     <div class="sidebar-categories-list"></div>
@@ -604,6 +621,8 @@ jsonContent:
     </script>
     <script src="/scripts/main.js"></script>
     <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     
     <!-- CNZZ  -->
     
