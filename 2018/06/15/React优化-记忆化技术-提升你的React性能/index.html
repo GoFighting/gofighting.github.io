@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" >
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    <meta name="keywords" content="Hexo | John Doe">
+    <meta name="description" content="">
+    <meta name="Cache-Control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <title>React优化-记忆化技术-提升你的React性能 · Nine&#39;s Blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180501 as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <link rel="stylesheet" href= /css/mobile.css?v=20180501 media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+        
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href= "/assets/favicon.ico" />
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script" />    
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script" />
+    <link rel="preload" href="/scripts/main.js" as="script" />
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Nine&#39;s Blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">React优化-记忆化技术-提升你的React性能</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Nine's Blog</a>
+</header>
+
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:50vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            React优化-记忆化技术-提升你的React性能
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "React">React</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/06/15</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
+        
+    </div>
+</div>
+        <script>
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+  
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntroTags = document.getElementsByClassName('post-intro-tags')[0],
+        postIntroMeat = document.getElementsByClassName('post-intro-meta')[0];
+      if (postIntroTags) {
+        postIntroTags.classList.add('post-fade-in');
+      }
+      if (postIntroMeat) {
+        postIntroMeat.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h4 id="为什么要使用记忆性技术？"><a href="#为什么要使用记忆性技术？" class="headerlink" title="为什么要使用记忆性技术？"></a>为什么要使用记忆性技术？</h4><p>使用React开发的时候，我们请求服务器拿回来一个复杂的数据，我们在render里去处理这个数据，但是state和props频繁修改会触发render，每次触发render，数据都要去处理一次，每次处理都是对性能的损耗</p>
+<p><strong>举个例子：把大于18岁的人列出来</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Example</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    render() &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123; dataList &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">        <span class="keyword">const</span> newDataList = dataList.filter(<span class="function">(<span class="params">item</span>) =&gt;</span> item.age &gt; <span class="number">18</span>);</span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                ...</span><br><span class="line">                &lt;List data=&#123;newDataList&#125; /&gt;</span><br><span class="line">                ...</span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        )</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">    ...</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>从例子中我们看到render中我们处理数据，但是每次state和props的修改都会触发render，都会去处理数据dataList，生成新的数据newDataList，每次处理都是对性能的损耗！</p>
+<h4 id="什么叫记忆性技术？"><a href="#什么叫记忆性技术？" class="headerlink" title="什么叫记忆性技术？"></a>什么叫记忆性技术？</h4><p>每次调用函数把你的传参和结果记录下来，遇到相同的传参，就直接返回记录缓存的结果，不用再去调用函数处理数据！</p>
+<h4 id="memoize-one官方案例"><a href="#memoize-one官方案例" class="headerlink" title="memoize-one官方案例"></a>memoize-one官方案例</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> memoizeOne <span class="keyword">from</span> <span class="string">'memoize-one'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> add = <span class="function">(<span class="params">a, b</span>) =&gt;</span> a + b;</span><br><span class="line"><span class="keyword">const</span> memoizedAdd = memoizeOne(add);</span><br><span class="line"></span><br><span class="line">memoizedAdd(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// 3</span></span><br><span class="line"></span><br><span class="line">memoizedAdd(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// 3</span></span><br><span class="line"><span class="comment">// Add 函数并没有执行: 前一次执行的结果被返回</span></span><br><span class="line"></span><br><span class="line">memoizedAdd(<span class="number">2</span>, <span class="number">3</span>); <span class="comment">// 5</span></span><br><span class="line"><span class="comment">// Add 函数再次被调用，返回一个新的结果</span></span><br><span class="line"></span><br><span class="line">memoizedAdd(<span class="number">2</span>, <span class="number">3</span>); <span class="comment">// 5</span></span><br><span class="line"><span class="comment">// Add 函数并没有执行: 前一次执行的结果被返回</span></span><br><span class="line"></span><br><span class="line">memoizedAdd(<span class="number">1</span>, <span class="number">2</span>); <span class="comment">// 3</span></span><br><span class="line"><span class="comment">// Add 函数再次被调用，返回一个新的结果</span></span><br></pre></td></tr></table></figure>
+<p>我们可以发现连续两次相同传参，第二次会直接返回上次的结果，每次传参不一样，就直接调用函数返回新的结果，会丢失之前的记录，并不是完全记忆，这也是个不足点！</p>
+<h4 id="在React中使用memoize-one"><a href="#在React中使用memoize-one" class="headerlink" title="在React中使用memoize-one"></a>在React中使用memoize-one</h4><p>根据上的例子，我们对那个例子进行修改，使用memoize-one提升React的性能<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> memoize <span class="keyword">from</span> <span class="string">"memoize-one"</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Example</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    filter = memoize(<span class="function">(<span class="params">dataList</span>) =&gt;</span> dataList.filter(<span class="function">(<span class="params">item</span>) =&gt;</span> item.age &gt; <span class="number">18</span>))</span><br><span class="line">    render() &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123; dataList &#125; = <span class="keyword">this</span>.props;</span><br><span class="line">        <span class="keyword">const</span> newDataList = <span class="keyword">this</span>.filter()</span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            &lt;div&gt;</span><br><span class="line">                ...</span><br><span class="line">                &lt;List data=&#123;newDataList&#125; /&gt;</span><br><span class="line">                ...</span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        )</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">    ...</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="memoize-one源码解析"><a href="#memoize-one源码解析" class="headerlink" title="memoize-one源码解析"></a>memoize-one源码解析</h4><p>memoize-one是采用闭包来缓存数据的<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">type EqualityFn = <span class="function">(<span class="params">a: mixed, b: mixed</span>) =&gt;</span> boolean;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> simpleIsEqual: EqualityFn = (a: mixed, <span class="attr">b</span>: mixed): <span class="function"><span class="params">boolean</span> =&gt;</span> a === b;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> &lt;<span class="title">ResultFn</span>: (<span class="params">...Array&lt;any&gt;</span>) =&gt; <span class="title">mixed</span>&gt;(<span class="params">resultFn: ResultFn, isEqual?: EqualityFn = simpleIsEqual</span>): <span class="title">ResultFn</span> </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> lastThis: mixed; <span class="comment">// 用来缓存上一次result函数对象</span></span><br><span class="line">  <span class="keyword">let</span> lastArgs: <span class="built_in">Array</span>&lt;mixed&gt; = []; <span class="comment">// 用来缓存上一次的传参</span></span><br><span class="line">  <span class="keyword">let</span> lastResult: mixed; <span class="comment">// 用来缓存上一次的结果</span></span><br><span class="line">  <span class="keyword">let</span> calledOnce: boolean = <span class="literal">false</span>; <span class="comment">// 是否之前调用过</span></span><br><span class="line">  <span class="comment">// 判断两次调用的时候的参数是否相等</span></span><br><span class="line">  <span class="comment">// 这里的 `isEqual` 是一个抽象函数，用来判断两个值是否相等</span></span><br><span class="line">  <span class="keyword">const</span> isNewArgEqualToLast = (newArg: mixed, <span class="attr">index</span>: number): <span class="function"><span class="params">boolean</span> =&gt;</span> isEqual(newArg, lastArgs[index]);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> result = <span class="function"><span class="keyword">function</span> (<span class="params">...newArgs: Array&lt;mixed&gt;</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (calledOnce &amp;&amp;</span><br><span class="line">      lastThis === <span class="keyword">this</span> &amp;&amp;</span><br><span class="line">      newArgs.length === lastArgs.length &amp;&amp;</span><br><span class="line">      newArgs.every(isNewArgEqualToLast)) &#123;</span><br><span class="line">      <span class="comment">// 返回之前的结果</span></span><br><span class="line">      <span class="keyword">return</span> lastResult;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    calledOnce = <span class="literal">true</span>; <span class="comment">// 标记已经调用过</span></span><br><span class="line">    lastThis = <span class="keyword">this</span>; <span class="comment">// 重新缓存result对象</span></span><br><span class="line">    lastArgs = newArgs; <span class="comment">// 重新缓存参数</span></span><br><span class="line">    lastResult = resultFn.apply(<span class="keyword">this</span>, newArgs); <span class="comment">// 重新缓存结果</span></span><br><span class="line">    <span class="keyword">return</span> lastResult; <span class="comment">// 返回新的结果</span></span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 返回闭包函数</span></span><br><span class="line">  <span class="keyword">return</span> (result: any);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="关于isEqual函数（memoize-one推荐使用loadsh-isEqual）"><a href="#关于isEqual函数（memoize-one推荐使用loadsh-isEqual）" class="headerlink" title="关于isEqual函数（memoize-one推荐使用loadsh.isEqual）"></a>关于isEqual函数（memoize-one推荐使用loadsh.isEqual）</h4><p>一般两个对象比较是否相等，我们不能用===或者==来处理，memoize-one允许用户自定义传入判断是否相等的函数，比如我们可以使用lodash的isEqual来判断两次参数是否相等<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> memoizeOne <span class="keyword">from</span> <span class="string">'memoize-one'</span>;</span><br><span class="line"><span class="keyword">import</span> deepEqual <span class="keyword">from</span> <span class="string">'lodash.isEqual'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> identity = <span class="function"><span class="params">x</span> =&gt;</span> x;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> defaultMemoization = memoizeOne(identity);</span><br><span class="line"><span class="keyword">const</span> customMemoization = memoizeOne(identity, deepEqual);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result1 = defaultMemoization(&#123;<span class="attr">foo</span>: <span class="string">'bar'</span>&#125;);</span><br><span class="line"><span class="keyword">const</span> result2 = defaultMemoization(&#123;<span class="attr">foo</span>: <span class="string">'bar'</span>&#125;);</span><br><span class="line"></span><br><span class="line">result1 === result2 <span class="comment">// false - 索引不同</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> result3 = customMemoization(&#123;<span class="attr">foo</span>: <span class="string">'bar'</span>&#125;);</span><br><span class="line"><span class="keyword">const</span> result4 = customMemoization(&#123;<span class="attr">foo</span>: <span class="string">'bar'</span>&#125;);</span><br><span class="line"></span><br><span class="line">result3 === result4 <span class="comment">// true - 参数通过lodash.isEqual判断是相等的</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><p><a href="https://github.com/alexreardon/memoize-one" target="_blank" rel="noopener">https://github.com/alexreardon/memoize-one</a></p>
+
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/06/15/webpack小技巧-公共组件引用路径简化/" title= Webpack小技巧-公共组件引用路径简化 >
+                    <div class="prevTitle">Webpack小技巧-公共组件引用路径简化</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!--PC版-->
+
+    <!--PC版-->
+
+
+    
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:lilijiujiuxu@163.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/GoFighting" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//weibo.com/2391319093/profile?topnav=1&wvr=6&is_all=1" class="iconfont-archer weibo" target="_blank" title=weibo></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="//segmentfault.com/u/nine_59f82397ef519" class="iconfont-archer others" target="_blank" title=others></a>
+            
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>
+        </span>
+    </div>
+    
+</footer>
+
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#为什么要使用记忆性技术？"><span class="toc-number">1.</span> <span class="toc-text">为什么要使用记忆性技术？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#什么叫记忆性技术？"><span class="toc-number">2.</span> <span class="toc-text">什么叫记忆性技术？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#memoize-one官方案例"><span class="toc-number">3.</span> <span class="toc-text">memoize-one官方案例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在React中使用memoize-one"><span class="toc-number">4.</span> <span class="toc-text">在React中使用memoize-one</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#memoize-one源码解析"><span class="toc-number">5.</span> <span class="toc-text">memoize-one源码解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#关于isEqual函数（memoize-one推荐使用loadsh-isEqual）"><span class="toc-number">6.</span> <span class="toc-text">关于isEqual函数（memoize-one推荐使用loadsh.isEqual）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#参考"><span class="toc-number">7.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-archive"> Total : 2 </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/15</span><a class="archive-post-title" href= "/2018/06/15/webpack小技巧-公共组件引用路径简化/" >Webpack小技巧-公共组件引用路径简化</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/15</span><a class="archive-post-title" href= "/2018/06/15/React优化-记忆化技术-提升你的React性能/" >React优化-记忆化技术-提升你的React性能</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="React"><span class="iconfont-archer">&#xe606;</span>React</span>
+    
+        <span class="sidebar-tag-name" data-tags="Webpack"><span class="iconfont-archer">&#xe606;</span>Webpack</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="React"><span class="iconfont-archer">&#xe60a;</span>React</span>
+    
+        <span class="sidebar-category-name" data-categories="Webpack"><span class="iconfont-archer">&#xe60a;</span>Webpack</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: '/',
+        author: 'John Doe'
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+    
+    </body>
+</html>
+
+
