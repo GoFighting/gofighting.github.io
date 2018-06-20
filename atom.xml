@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-06-15T09:11:50.312Z</updated>
+  <updated>2018-06-20T03:32:23.846Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>React优化-JSX模板优化-标签化</title>
+    <link href="http://yoursite.com/2018/06/20/React%E4%BC%98%E5%8C%96-JSX%E6%A8%A1%E6%9D%BF%E4%BC%98%E5%8C%96-%E6%A0%87%E7%AD%BE%E5%8C%96/"/>
+    <id>http://yoursite.com/2018/06/20/React优化-JSX模板优化-标签化/</id>
+    <published>2018-06-20T03:31:43.000Z</published>
+    <updated>2018-06-20T03:32:23.846Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="什么是JSX"><a href="#什么是JSX" class="headerlink" title="什么是JSX"></a>什么是JSX</h3><p>JSX是JavaScrip的一种扩展语法，JSX的标签语法既不是字符串也不是HTML；<br>从本质上讲，JSX只是为React.createElement(component, props, …children)函数提供的语法糖。</p><h4 id="JSX的痛点（项目开发中遇到的）"><a href="#JSX的痛点（项目开发中遇到的）" class="headerlink" title="JSX的痛点（项目开发中遇到的）"></a>JSX的痛点（项目开发中遇到的）</h4><p>写jsx模板的时候，我们遇到循环输出子组件或者标签，需要通过Array.forEach或者for循环输出；判断选择子组件的时候，需要通过if或者三元判断输出；一个模板里面我们会很多逻辑，这些逻辑看起来跟jsx不是很和谐！有没有办法做到标签化，跟jsx语法一致尼？</p><h3 id="jsx-control-statements介绍"><a href="#jsx-control-statements介绍" class="headerlink" title="jsx-control-statements介绍"></a>jsx-control-statements介绍</h3><p>安装<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --save-dev babel-plugin-jsx-control-statements</span><br></pre></td></tr></table></figure></p><p>配置<strong>.babelrc</strong><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="string">"plugins"</span>: [<span class="string">"jsx-control-statements"</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p><h3 id="jsx-control-statements语法"><a href="#jsx-control-statements语法" class="headerlink" title="jsx-control-statements语法"></a>jsx-control-statements语法</h3><p><strong>If（但是目前不支持Else，这也是可惜的）</strong><br>    // 简单例子<br>    <if condition="{" true="" }=""><br>      <span>IfBlock</span><br>    </if></p><pre><code>// 使用多个子元素或者表达式&lt;If condition={ true }&gt;  one  { &quot;two&quot; }  &lt;span&gt;three&lt;/span&gt;  &lt;span&gt;four&lt;/span&gt;&lt;/If&gt;// 转化前&lt;If condition={ test }&gt;  &lt;span&gt;Truth&lt;/span&gt;&lt;/If&gt;// 转化后{ test ? &lt;span&gt;Truth&lt;/span&gt; : null }</code></pre><p><strong>Choose、When、Otherwise（ 相当于switch case defualt）</strong></p><pre><code>// 转化前&lt;Choose&gt;  &lt;When condition={ test1 }&gt;    &lt;span&gt;IfBlock1&lt;/span&gt;  &lt;/When&gt;  &lt;When condition={ test2 }&gt;    &lt;span&gt;IfBlock2&lt;/span&gt;  &lt;/When&gt;  &lt;Otherwise&gt;    &lt;span&gt;ElseBlock&lt;/span&gt;  &lt;/Otherwise&gt;&lt;/Choose&gt;// 转化后{ test1 ? &lt;span&gt;IfBlock1&lt;/span&gt; : test2 ? &lt;span&gt;IfBlock2&lt;/span&gt; : &lt;span&gt;ElseBlock&lt;/span&gt; }</code></pre><p><strong>For</strong><br>    // 循环输出的时候必须提供key<br>    <for each="item" of="{" this.props.items="" }=""><br>        <span key="{" item.id="" }="">{ item.title }</span><br>    </for></p><pre><code>// 如果数组改变，则使用索引作为键属性是不稳定的&lt;For each=&quot;item&quot; index=&quot;idx&quot; of={ [1,2,3] }&gt;    &lt;span key={ idx }&gt;{ item }&lt;/span&gt;    &lt;span key={ idx + &apos;_2&apos; }&gt;Static Text&lt;/span&gt;&lt;/For&gt;</code></pre><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://github.com/AlexGilleran/jsx-control-statements" target="_blank" rel="noopener">https://github.com/AlexGilleran/jsx-control-statements</a><br><a href="http://www.css88.com/react/docs/introducing-jsx.html" target="_blank" rel="noopener">JSX 介绍</a><br><a href="http://www.css88.com/react/docs/jsx-in-depth.html" target="_blank" rel="noopener">JSX 深入</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;什么是JSX&quot;&gt;&lt;a href=&quot;#什么是JSX&quot; class=&quot;headerlink&quot; title=&quot;什么是JSX&quot;&gt;&lt;/a&gt;什么是JSX&lt;/h3&gt;&lt;p&gt;JSX是JavaScrip的一种扩展语法，JSX的标签语法既不是字符串也不是HTML；&lt;br&gt;从本质上讲，J
+      
+    
+    </summary>
+    
+      <category term="React" scheme="http://yoursite.com/categories/React/"/>
+    
+    
+      <category term="React" scheme="http://yoursite.com/tags/React/"/>
+    
+  </entry>
   
   <entry>
     <title>React优化-记忆化技术-提升你的React性能</title>
