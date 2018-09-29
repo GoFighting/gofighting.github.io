@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-09-28T03:53:27.752Z</updated>
+  <updated>2018-09-29T06:42:44.981Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,32 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Tool-生成雪碧图（sprite）</title>
+    <link href="http://yoursite.com/2018/09/29/Tool-%E7%94%9F%E6%88%90%E9%9B%AA%E7%A2%A7%E5%9B%BE%EF%BC%88sprite%EF%BC%89/"/>
+    <id>http://yoursite.com/2018/09/29/Tool-生成雪碧图（sprite）/</id>
+    <published>2018-09-29T06:02:44.000Z</published>
+    <updated>2018-09-29T06:42:44.981Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>网站开发时，我们会使用会多小图标，很多小图标的调用一直都是个问题。</p><h3 id="小图标使用方法"><a href="#小图标使用方法" class="headerlink" title="小图标使用方法"></a>小图标使用方法</h3><p>图标字体（例如:阿里出品的<a href="http://iconfont.cn/" target="_blank" rel="noopener">iconfont</a>）<br>雪碧图（CSS Sprite）<br>等等…</p><h3 id="雪碧图（CSS雪碧）"><a href="#雪碧图（CSS雪碧）" class="headerlink" title="雪碧图（CSS雪碧）"></a>雪碧图（CSS雪碧）</h3><p>CSS雪碧 即CSS Sprite，也有人叫它CSS精灵，是一种CSS图像合并技术，该方法是将小图标和背景图像合并到一张图片上，然后利用css的背景定位来显示需要显示的图片部分。</p><h3 id="雪碧图优点"><a href="#雪碧图优点" class="headerlink" title="雪碧图优点"></a>雪碧图优点</h3><p><strong> 1. 减少加载网页图片时对服务器的请求次数 </strong></p><p>可以合并多数背景图片和小图标，方便在任何位置使用，这样不同位置的请求只需要调用一个图片，从而减少对服务器的请求次数，降低服务器压力，同时提高了页面的加载速度，节约服务器的流量</p><p><strong> 2. 提高页面的加载速度 </strong></p><p>sprite 技术的其中一个好处是图片的加载时间(在有许多 sprite 时，单张图片的加载时间)；单独的一张 JPEG 或者 PNG sprite 在大小上非常可能比把一张图分成多张得来的图片总尺寸小。</p><h3 id="生成雪碧图"><a href="#生成雪碧图" class="headerlink" title="生成雪碧图"></a>生成雪碧图</h3><h4 id="PhotoShop（傻瓜方式）"><a href="#PhotoShop（傻瓜方式）" class="headerlink" title="PhotoShop（傻瓜方式）"></a>PhotoShop（傻瓜方式）</h4><p>通过PhotoShop把图片合成一张大图，让后手动写css，定位到图标</p><h4 id="Gulp生成雪碧图（项目链接）"><a href="#Gulp生成雪碧图（项目链接）" class="headerlink" title="Gulp生成雪碧图（项目链接）"></a>Gulp生成雪碧图（<a href="https://github.com/GoFighting/create-sprite-tool" target="_blank" rel="noopener">项目链接</a>）</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);</span><br><span class="line"><span class="keyword">var</span> spritesmith = <span class="built_in">require</span>(<span class="string">'gulp.spritesmith'</span>);</span><br><span class="line"></span><br><span class="line">gulp.task(<span class="string">'sprite'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// var DEST_NAME = args[1];</span></span><br><span class="line">    <span class="keyword">var</span> spriteData = gulp.src(<span class="string">'src/sprite-images/*.png'</span>).pipe(spritesmith(&#123;</span><br><span class="line">        imgName: <span class="string">'sprite.png'</span>,</span><br><span class="line">      cssName: <span class="string">'sprite.css'</span>,</span><br><span class="line">      imgPath: <span class="string">'../images/sprite.png'</span>,</span><br><span class="line">      <span class="comment">// cssTemplate: 'sprite.template.handlebars'</span></span><br><span class="line">    &#125;));</span><br><span class="line">    spriteData.css.pipe(gulp.dest(<span class="string">'public/styles'</span>));</span><br><span class="line">    spriteData.img.pipe(gulp.dest(<span class="string">'public/images'</span>));</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure><p>合并前<br><img src="/img/bVbhEKv.png" alt="图片描述"></p><p>合并后<br><img src="/img/bVbhEL6.png" alt="图片描述"><br><img src="/img/bVbhEMP.png" alt="图片描述"></p><h4 id="Webpack生成雪碧图（项目链接）"><a href="#Webpack生成雪碧图（项目链接）" class="headerlink" title="Webpack生成雪碧图（项目链接）"></a>Webpack生成雪碧图（<a href="https://github.com/GoFighting/create-sprite-tool" target="_blank" rel="noopener">项目链接</a>）</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> SpritesmithPlugin = <span class="built_in">require</span>(<span class="string">'webpack-spritesmith'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">plugins: [</span><br><span class="line">        <span class="keyword">new</span> SpritesmithPlugin(&#123;</span><br><span class="line">            src: &#123;</span><br><span class="line">                cwd: <span class="string">'src/sprite-images'</span>,</span><br><span class="line">                glob: <span class="string">'*.png'</span></span><br><span class="line">            &#125;,</span><br><span class="line">            target: &#123;</span><br><span class="line">                image: <span class="string">'public/images/sprite.png'</span>,</span><br><span class="line">                css: <span class="string">'public/styles/sprite.css'</span></span><br><span class="line">            &#125;,</span><br><span class="line">            apiOptions: &#123;</span><br><span class="line">                cssImageRef: <span class="string">"../images/sprite.png"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;网站开发时，我们会使用会多小图标，很多小图标的调用一直都是个问题。&lt;/p&gt;
+&lt;h3 id=&quot;小图标使用方法&quot;&gt;&lt;a href=&quot;#小图标使用
+      
+    
+    </summary>
+    
+      <category term="Tool" scheme="http://yoursite.com/categories/Tool/"/>
+    
+    
+      <category term="Tool" scheme="http://yoursite.com/tags/Tool/"/>
+    
+  </entry>
   
   <entry>
     <title>Javascript-apply、call、bind</title>
